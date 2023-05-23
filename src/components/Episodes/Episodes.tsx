@@ -1,7 +1,12 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import './Episodes.css';
+import { FontContext, ThemeContext } from '../../context/CommonContext';
+
+
 export const urlEpisode = 'https://rickandmortyapi.com/api/episode';
+
 
 export type Response  = {
     info:    Info;
@@ -27,6 +32,8 @@ export type Episode = {
 
 
 export const Episodes = () => {
+    const theme = useContext(ThemeContext);
+    const fontSize = useContext(FontContext);
     const [episodes, setEpisodes] = useState<Episode[]>([]);
     const [params, setParams] = useSearchParams();
     const [textInInput, setTextInInput] = useState('');
@@ -62,12 +69,13 @@ export const Episodes = () => {
     },[params.get('page'), params.get('name')])
 
   return (
-    <div>
+    <div className={`theme-${theme}`} style={{fontSize}}>
+        <p>{fontSize}</p>
         <button disabled={!hasPrev} onClick={() => {changePage(Number(params.get('page')) - 1)}}>Previus</button>
         <span>{params.get('page')}</span>
         <button disabled={!hasNext}  onClick={() => {changePage(Number(params.get('page')) + 1)}}>Next</button>
         <br></br>
-        <input value={params.get('name') || ''} onChange={(event) => {setTextInInput(event.target.value)}}></input>
+        <input onChange={(event) => {setTextInInput(event.target.value)}}></input>
         <button onClick={findName}>Find</button>
         <br></br>
         {episodes.map(episode => <><Link to={`/episodes/${episode.id}`}>{episode.name}</Link><br></br></>)}

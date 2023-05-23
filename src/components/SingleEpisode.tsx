@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Episode, urlEpisode } from './Episodes'
+import { Episode, urlEpisode } from './Episodes/Episodes'
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
