@@ -29,6 +29,20 @@ export type Episode = {
 export const Episodes = () => {
     const [episodes, setEpisodes] = useState<Episode[]>([]);
     const [params, setParams] = useSearchParams();
+    const [textInInput, setTextInInput] = useState('');
+    const [hasNext, setNext] = useState(true);
+    const [hasPrev, setPrev] = useState(true);
+
+    const findName = () => {
+        if (textInInput) {
+            params.set('page', String(1)); 
+            params.set('name', textInInput); 
+        } else {
+            params.delete('name');
+        }
+        setParams(params)
+    
+    }
 
     const changePage = (page: number) => {
         params.set('page', String(page));
@@ -39,16 +53,22 @@ export const Episodes = () => {
         if (!params.get('page')) {
             changePage(1);
         }
-        axios.get<Response>(`${urlEpisode}?page=${params.get('page')}`).then((response) => {
+        const nameQP =  params.get('name') ? `&name=${params.get('name')}` : ''
+        axios.get<Response>(`${urlEpisode}?page=${params.get('page')}${nameQP}`).then((response) => {
             setEpisodes(response.data.results);
+            setNext(Boolean(response.data.info.next));
+            setPrev(Boolean(response.data.info.prev));
         })
-    },[params.get('page')])
+    },[params.get('page'), params.get('name')])
 
   return (
     <div>
-        <button onClick={() => {changePage(Number(params.get('page')) - 1)}}>Previus</button>
+        <button disabled={!hasPrev} onClick={() => {changePage(Number(params.get('page')) - 1)}}>Previus</button>
         <span>{params.get('page')}</span>
-        <button onClick={() => {changePage(Number(params.get('page')) + 1)}}>Next</button>
+        <button disabled={!hasNext}  onClick={() => {changePage(Number(params.get('page')) + 1)}}>Next</button>
+        <br></br>
+        <input value={params.get('name') || ''} onChange={(event) => {setTextInInput(event.target.value)}}></input>
+        <button onClick={findName}>Find</button>
         <br></br>
         {episodes.map(episode => <><Link to={`/episodes/${episode.id}`}>{episode.name}</Link><br></br></>)}
     </div>
